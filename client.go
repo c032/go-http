@@ -28,15 +28,21 @@ func (cc *customClient) Do(req *nethttp.Request) (*nethttp.Response, error) {
 
 func NewClient(userAgent string) (Client, error) {
 	const timeout = 15 * time.Second
+	stdlibClient := &nethttp.Client{
+		Timeout: timeout,
+	}
+
+	return NewClientFromStandardLibrary(userAgent, stdlibClient)
+}
+
+func NewClientFromStandardLibrary(userAgent string, stdlibClient *nethttp.Client) (Client, error) {
 	if strings.TrimSpace(userAgent) == "" {
 		return nil, fmt.Errorf("invalid user agent: %q", userAgent)
 	}
 
 	c := &customClient{
 		userAgent: userAgent,
-		client: &nethttp.Client{
-			Timeout: timeout,
-		},
+		client:    stdlibClient,
 	}
 
 	return c, nil
